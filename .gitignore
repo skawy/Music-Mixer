@@ -1,0 +1,4 @@
+pretrained_models/*
+audio_output/*
+structers/__pycache__/*
+song1.mp3
