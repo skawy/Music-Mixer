@@ -10,15 +10,19 @@ def gui():
             sg.Button('Pause', pad=(10, 0), key="-PAUSE-"),
             sg.Button('Stop', pad=(10, 0), key="-STOP-"),
             sg.Slider(range=(0,100), orientation='h', size=(40, 20), enable_events=True, key="-VOLUME-", default_value=100)
-        ]
+        ],
+        [sg.Text(size=(50, 3), key='-SONG-')]
     ]
 
     audio_separator_column = [
-        [sg.Text("Choose a file: "), sg.Input(), sg.FileBrowse(key="-TO_SEPARATE_PATH-")],
+        [sg.Text("Choose a Song To Separate: "), sg.Input(), sg.FileBrowse(key="-TO_SEPARATE_PATH-")],
+        
+        [sg.Text("You can add Vocals or instruments of chosen file your current music ")],
+
         [
-            sg.Button('Add Vocals', pad=(10, 0), key="-VOCALS"),
-            sg.Button('Add Instruments', pad=(10, 0), key="-Instruments-"),
-        ]
+            sg.Button('Add Vocals', pad=(10, 0), key="-VOCALS-"),
+            sg.Button('Add Instruments', pad=(10, 0), key="-INSTRUMENTS-"),
+        ],
     ]
 
     layout = [
@@ -41,7 +45,6 @@ def gui():
             break
 
         sound_path = values["-SOUND_PATH-"]
-
         if not sound_path:
             sg.Popup("No song specified.")
             continue
@@ -52,6 +55,8 @@ def gui():
 
         if event == '-PLAY-':
             audio_player_window['-STATUS-'].update('Playing')
+            audio_player_window['-SONG-'].update(sound_path)
+
             if is_paused:
                 song_channel.unpause()
                 is_paused = False
