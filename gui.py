@@ -1,6 +1,16 @@
+from genericpath import isdir
 import PySimpleGUI as sg
 import pygame
+
+import sys
+from pathlib import Path
+
 from pydub import AudioSegment
+import structures.mixer as mixer
+from utils.song_separator import song_separator
+
+sys.path.append("/home/skawy/side_projects/music-mixer/structures")
+sys.path.append("/home/skawy/side_projects/music-mixer/utils")
 
 def gui():
     audio_player_column = [
@@ -17,7 +27,7 @@ def gui():
     ]
 
     audio_separator_column = [
-        [sg.Text("Choose a Song To Separate: "), sg.Input(), sg.FileBrowse(key="-TO_SEPARATE_PATH-")],
+        [sg.Text("Choose a Song To Separate: "), sg.Input( enable_events= True , key = "-SEPARATE-"), sg.FileBrowse()],
         
         [sg.Text("You can add Vocals or instruments of chosen file your current music ")],
 
@@ -42,43 +52,79 @@ def gui():
     pygame.mixer.init()
     is_paused = False
 
+    empty_song = AudioSegment.silent(duration=10000)
+
+    empty_song.export("/home/skawy/side_projects/music-mixer/empty.wav", format='wav')
+
+    sound_path = '/home/skawy/side_projects/music-mixer/empty.wav'
+
+    my_song = mixer.Concrete_Song()
+
     while True:
+
         event, values = audio_player_window.read()
         if event == sg.WIN_CLOSED or event=="Exit":
             break
         
-        empty_song = AudioSegment.silent(duration=10000)
-
-        empty_song.export("/home/skawy/side_projects/music-mixer/saved/empty.wav", format='wav')
-
-       # sound_path = '/home/skawy/side_projects/music-mixer/audio_output/song1/accompaniment.wav'
-        sound_path = '/home/skawy/side_projects/music-mixer/saved/empty.wav'
-        # sound_path = values["-SOUND_PATH-"]
-        # if not sound_path:
-        #     sg.Popup("No song specified.")
-        #     continue
-
         song = pygame.mixer.Sound(sound_path)
         # song_length = song.get_length()
         song_channel = pygame.mixer.Channel(2)
 
-        if event == '-PLAY-':
-            audio_player_window['-STATUS-'].update('Playing')
-            audio_player_window['-SONG-'].update(sound_path)
-            song_channel.unpause() if is_paused else song_channel.play(song)
-            is_paused = False
-        elif event == '-PAUSE-':
-            song_channel.pause()
-            audio_player_window['-STATUS-'].update('Paused')
-            is_paused = True
+        separated_song_path = values["-SEPARATE-"]
 
-        elif event == '-STOP-':
-            song_channel.stop()
-            audio_player_window['-STATUS-'].update('Stopped')
+        if event == '-SEPARATE-':
+            separated_song_path = values["-SEPARATE-"]
+            song_name = separated_song_path.split("/")[-1].replace('.mp3','')
+            if Path(f'/home/skawy/side_projects/music-mixer/audio_output/{song_name}').is_dir():
+                print("Already Separated")
+                continue
+            song_separator(separated_song_path)
 
-        elif event == '-VOLUME-':
-            volume = values['-VOLUME-']
-            song_channel.set_volume(volume/100)
+        match event:
+            case '-VOCALS-':
+                if separated_song_path == "":
+                    print("Choose File To Separate")
+                    continue
+                
+                song_name = separated_song_path.split("/")[-1].replace('.mp3','')
+                my_song = mixer.Vocals(my_song,song_name)
+                my_song.get_mixes().export("/home/skawy/side_projects/music-mixer/combined.wav", format='wav')
+                sound_path = "/home/skawy/side_projects/music-mixer/combined.wav"
+                song_channel.stop()
+
+
+            case '-INSTRUMENTS-':
+                if separated_song_path == "":
+                    print("Choose File To Separate")
+                    continue
+                song_name = separated_song_path.split("/")[-1].replace('.mp3','')
+                my_song = mixer.Instruments(my_song,song_name)
+                my_song.get_mixes().export("/home/skawy/side_projects/music-mixer/combined.wav", format='wav')
+                sound_path = "/home/skawy/side_projects/music-mixer/combined.wav"
+                song_channel.stop()
+
+            case '-PLAY-':
+                audio_player_window['-STATUS-'].update('Playing')
+                audio_player_window['-SONG-'].update(sound_path)
+                song_channel.unpause() if is_paused else song_channel.play(song)
+                is_paused = False
+
+            case '-PAUSE-':
+                song_channel.pause()
+                audio_player_window['-STATUS-'].update('Paused')
+                is_paused = True
+      
+            case '-STOP-':
+                song_channel.stop()
+                audio_player_window['-STATUS-'].update('Stopped')
+
+            case '-SAVE-':
+                mix =  my_song.get_names()
+                my_song.get_mixes().export(f'/home/skawy/side_projects/music-mixer/saved/{mix}.wav', format='wav')
+
+            case '-VOLUME-':
+                volume = values['-VOLUME-']
+                song_channel.set_volume(volume/100)
 
     audio_player_window.close()
 

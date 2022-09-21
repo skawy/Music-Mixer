@@ -1,6 +1,9 @@
 pretrained_models/*
 audio_output/*
 saved/*
-structers/__pycache__/*
-song1.mp3
-runaway.mp3
+songs/*
+structures/__pycache__/*
+utils/__pycache__/*
+
+combined.wav
+empty.wav
