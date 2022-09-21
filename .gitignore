@@ -1,5 +1,6 @@
 pretrained_models/*
 audio_output/*
+saved/*
 structers/__pycache__/*
 song1.mp3
 runaway.mp3
