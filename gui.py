@@ -1,4 +1,3 @@
-from genericpath import isdir
 import PySimpleGUI as sg
 import pygame
 
