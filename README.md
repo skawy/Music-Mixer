@@ -1,4 +1,4 @@
-# Music-Mixer
+# :headphones: Music-Mixer
 
 ## ![surfer](https://github.githubassets.com/images/icons/emoji/unicode/1f3c4.png) Introduction
 
@@ -17,3 +17,8 @@ pip install -r requirements.txt | pip3 install -r requirements.txt
 ```
 
 ## ![open_file_folder](https://github.githubassets.com/images/icons/emoji/unicode/1f4c2.png) Screenshots
+
+
+<p align="center">
+  <img src="https://github.com/skawy/music-mixer/blob/main/screenshots/Screenshot%20from%202022-09-23%2006-03-56.png" style="zoom:50%; alt='Screenshot 12Preview'" />
+</p>
